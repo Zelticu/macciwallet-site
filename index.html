@@ -23,18 +23,20 @@
             box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
             display: none;
             flex-direction: column;
+            align-items: center;
             gap: 10px;
         }
         h1, h2 {
             text-align: center;
         }
         input {
-            width: 100%;
+            width: 90%;
             padding: 10px;
             border: none;
             border-radius: 5px;
             background: #333;
             color: white;
+            margin: 5px auto;
         }
         button {
             padding: 12px;
@@ -46,6 +48,7 @@
             cursor: pointer;
             transition: 0.3s;
             box-shadow: 0 0 20px rgba(255, 100, 100, 0.8);
+            width: 90%;
         }
         button:hover {
             background: linear-gradient(145deg, #ff6666, crimson);
@@ -98,20 +101,30 @@
     <script>
         let currentWallet = "";
 
+        window.onload = function () {
+            showSignup(); // Default to Signup view
+        };
+
         function showSignup() {
-            document.getElementById('auth').classList.remove('show');
+            hideAll();
             document.getElementById('signup').classList.add('show');
         }
 
         function showLogin() {
-            document.getElementById('signup').classList.remove('show');
-            document.getElementById('recovery').classList.remove('show');
+            hideAll();
             document.getElementById('auth').classList.add('show');
         }
 
         function showRecovery() {
-            document.getElementById('auth').classList.remove('show');
+            hideAll();
             document.getElementById('recovery').classList.add('show');
+        }
+
+        function hideAll() {
+            document.getElementById('auth').classList.remove('show');
+            document.getElementById('signup').classList.remove('show');
+            document.getElementById('recovery').classList.remove('show');
+            document.getElementById('wallet').classList.remove('show');
         }
 
         function generateRecoveryPhrase() {
@@ -146,7 +159,7 @@
             const users = JSON.parse(localStorage.getItem("users")) || {};
             if (users[username] && users[username].password === password) {
                 currentWallet = username;
-                document.getElementById("auth").classList.remove("show");
+                hideAll();
                 document.getElementById("wallet").classList.add("show");
                 document.getElementById("walletDisplay").innerText = currentWallet;
                 document.getElementById("balance").innerText = "100 (Simulated)";
