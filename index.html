@@ -1,87 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Macci Wallet</title>
-  <style>
-    body {
-      background-color: #121212;
-      font-family: Arial, sans-serif;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    .container {
-      background: linear-gradient(145deg, #2a2a2a, #3a3a3a);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 100, 100, 0.5);
-      max-width: 400px;
-      width: 100%;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      background-color: #1e1e1e;
-      color: white;
-    }
-    button {
-      background: linear-gradient(145deg, crimson, #ff6666);
-      color: white;
-      border: none;
-      padding: 12px;
-      width: 100%;
-      margin-top: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      box-shadow: 0 0 15px rgba(255, 100, 100, 0.7);
-    }
-    button:hover {
-      background: linear-gradient(145deg, #ff6666, crimson);
-      box-shadow: 0 0 25px rgba(255, 150, 150, 1);
-      transform: scale(1.03);
-    }
-    .info {
-      font-size: 14px;
-      margin-top: 15px;
-      color: #bbb;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macci Wallet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(145deg, #2a2a2a, #3a3a3a);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+        }
+        button {
+            padding: 12px;
+            font-size: 16px;
+            background: linear-gradient(145deg, crimson, #ff6666);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 20px rgba(255, 100, 100, 0.8);
+        }
+        button:hover {
+            background: linear-gradient(145deg, #ff6666, crimson);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 150, 150, 1);
+        }
+        .show {
+            display: flex;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Macci Wallet Access</h1>
-    <p>Enter your wallet address to check MACCI status or receive funds:</p>
-    <input type="text" id="walletAddress" placeholder="Enter your MACCI wallet address">
-    <button onclick="submitAddress()">Submit</button>
-    <div class="info">
-      After purchasing MACCI, your balance will be automatically updated. <br>
-      Make sure your wallet address is correct!
-    </div>
-  </div>
+    <h1>Macci Wallet</h1>
 
-  <script>
-    function submitAddress() {
-      const wallet = document.getElementById('walletAddress').value.trim();
-      if (!wallet || wallet.length < 8) {
-        alert("Please enter a valid MACCI wallet address.");
-        return;
-      }
-      alert("Wallet address submitted! If you purchased MACCI, it will be delivered shortly.");
-      // This would normally send to your backend or display balance
-    }
-  </script>
+    <div id="login" class="container show">
+        <h2>Login</h2>
+        <input type="text" id="loginAddress" placeholder="Wallet Address">
+        <button onclick="login()">Access Wallet</button>
+    </div>
+
+    <div id="wallet" class="container">
+        <h2>Welcome</h2>
+        <p><strong>Wallet Address:</strong> <span id="walletDisplay"></span></p>
+        <p><strong>Balance:</strong> <span id="balance">Loading...</span> MACCI</p>
+        <button onclick="buyMacci()">Buy MACCI</button>
+        <button onclick="sendMacci()">Send MACCI</button>
+    </div>
+
+    <script>
+        let currentWallet = "";
+
+        function login() {
+            const addr = document.getElementById("loginAddress").value.trim();
+            if (addr.length >= 8 && addr.length <= 40) {
+                currentWallet = addr;
+                document.getElementById("login").classList.remove("show");
+                document.getElementById("wallet").classList.add("show");
+                document.getElementById("walletDisplay").textContent = currentWallet;
+                // You could fetch balance here via backend
+                document.getElementById("balance").textContent = "100 (Simulated)";
+            } else {
+                alert("Invalid wallet address");
+            }
+        }
+
+        function buyMacci() {
+            const stripeLink = "https://buy.stripe.com/4gw9CC4iWaCQgjSbIJ";
+            const url = new URL(stripeLink);
+            url.searchParams.set("client_reference_id", currentWallet);
+            window.location.href = url.toString();
+        }
+
+        function sendMacci() {
+            const recipient = prompt("Enter recipient wallet address:");
+            const amount = prompt("Enter amount of MACCI to send:");
+            if (recipient && amount) {
+                alert("[Simulated] Sent " + amount + " MACCI to " + recipient);
+                // Actual backend logic would be triggered via webhook
+            }
+        }
+    </script>
 </body>
 </html>
