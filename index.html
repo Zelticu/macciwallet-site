@@ -60,10 +60,31 @@
 <body>
     <h1>Macci Wallet</h1>
 
-    <div id="login" class="container show">
+    <div id="auth" class="container show">
         <h2>Login</h2>
-        <input type="text" id="loginAddress" placeholder="Wallet Address">
-        <button onclick="login()">Access Wallet</button>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Create Account</button>
+        <button onclick="showRecovery()">Forgot Password?</button>
+    </div>
+
+    <div id="signup" class="container">
+        <h2>Create Account</h2>
+        <input type="text" id="newUsername" placeholder="Username">
+        <input type="password" id="newPassword" placeholder="Password">
+        <p>Your 12-word recovery phrase:</p>
+        <p id="recoveryPhrase" style="font-weight: bold; background: #333; padding: 10px; border-radius: 5px;"></p>
+        <button onclick="generateRecoveryPhrase()">Generate Recovery Phrase</button>
+        <button onclick="signup()">Sign Up</button>
+        <button onclick="showLogin()">Back to Login</button>
+    </div>
+
+    <div id="recovery" class="container">
+        <h2>Recover Account</h2>
+        <input type="text" id="recoveryInput" placeholder="Enter 12-word phrase">
+        <button onclick="recoverAccount()">Recover</button>
+        <button onclick="showLogin()">Back to Login</button>
     </div>
 
     <div id="wallet" class="container">
@@ -77,18 +98,73 @@
     <script>
         let currentWallet = "";
 
-        function login() {
-            const addr = document.getElementById("loginAddress").value.trim();
-            if (addr.length >= 8 && addr.length <= 40) {
-                currentWallet = addr;
-                document.getElementById("login").classList.remove("show");
-                document.getElementById("wallet").classList.add("show");
-                document.getElementById("walletDisplay").textContent = currentWallet;
-                // You could fetch balance here via backend
-                document.getElementById("balance").textContent = "100 (Simulated)";
-            } else {
-                alert("Invalid wallet address");
+        function showSignup() {
+            document.getElementById('auth').classList.remove('show');
+            document.getElementById('signup').classList.add('show');
+        }
+
+        function showLogin() {
+            document.getElementById('signup').classList.remove('show');
+            document.getElementById('recovery').classList.remove('show');
+            document.getElementById('auth').classList.add('show');
+        }
+
+        function showRecovery() {
+            document.getElementById('auth').classList.remove('show');
+            document.getElementById('recovery').classList.add('show');
+        }
+
+        function generateRecoveryPhrase() {
+            const words = [];
+            const possible = "abcdefghijklmnopqrstuvwxyz";
+            for (let i = 0; i < 12; i++) {
+                let word = "";
+                for (let j = 0; j < 5; j++) {
+                    word += possible.charAt(Math.floor(Math.random() * possible.length));
+                }
+                words.push(word);
             }
+            document.getElementById("recoveryPhrase").innerText = words.join(" ");
+        }
+
+        function signup() {
+            const username = document.getElementById("newUsername").value;
+            const password = document.getElementById("newPassword").value;
+            const recovery = document.getElementById("recoveryPhrase").innerText;
+            if (!username || !password || !recovery) return alert("Fill all fields and generate phrase");
+            const users = JSON.parse(localStorage.getItem("users")) || {};
+            if (users[username]) return alert("Username taken");
+            users[username] = { password, recovery };
+            localStorage.setItem("users", JSON.stringify(users));
+            alert("Account created, you can now login.");
+            showLogin();
+        }
+
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const users = JSON.parse(localStorage.getItem("users")) || {};
+            if (users[username] && users[username].password === password) {
+                currentWallet = username;
+                document.getElementById("auth").classList.remove("show");
+                document.getElementById("wallet").classList.add("show");
+                document.getElementById("walletDisplay").innerText = currentWallet;
+                document.getElementById("balance").innerText = "100 (Simulated)";
+            } else {
+                alert("Invalid credentials");
+            }
+        }
+
+        function recoverAccount() {
+            const recoveryInput = document.getElementById("recoveryInput").value;
+            const users = JSON.parse(localStorage.getItem("users")) || {};
+            for (let user in users) {
+                if (users[user].recovery === recoveryInput) {
+                    alert("Account recovered. Username: " + user);
+                    return;
+                }
+            }
+            alert("Recovery phrase not found");
         }
 
         function buyMacci() {
@@ -103,7 +179,6 @@
             const amount = prompt("Enter amount of MACCI to send:");
             if (recipient && amount) {
                 alert("[Simulated] Sent " + amount + " MACCI to " + recipient);
-                // Actual backend logic would be triggered via webhook
             }
         }
     </script>
